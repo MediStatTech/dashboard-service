@@ -11,6 +11,7 @@ import (
 func NewBiometricClient(l *log.Logger) (*biometric_client.Facade, error) {
 	client, err := biometric_client.New(&client_options.Options{
 		Log: l,
+		AddressName: "localhost:50053",
 	})
 	if err != nil {
 		return nil, fmt.Errorf("biometric client connect: %w", err)

@@ -11,6 +11,7 @@ import (
 func NewAuthClient(l *log.Logger) (*auth_client.Facade, error) {
 	client, err := auth_client.New(&client_options.Options{
 		Log: l,
+		AddressName: "localhost:50052",
 	})
 	if err != nil {
 		return nil, fmt.Errorf("auth client connect: %w", err)

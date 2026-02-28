@@ -10,9 +10,13 @@ import (
 	"github.com/MediStatTech/dashboard-service/internal"
 	"github.com/MediStatTech/dashboard-service/internal/health"
 	"github.com/MediStatTech/dashboard-service/pkg"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		panic(fmt.Errorf("error loading .env file: %w", err))
+	}
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
