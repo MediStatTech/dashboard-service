@@ -80,5 +80,6 @@ func sensorToPb(s domain.Sensor) *pb_models.Sensor {
 		SensorId: s.SensorID,
 		Name:     s.Name,
 		Code:     s.Code,
+		Symbol:   s.Symbol,
 	}
 }

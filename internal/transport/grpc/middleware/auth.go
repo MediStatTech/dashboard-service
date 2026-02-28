@@ -14,7 +14,7 @@ import (
 )
 
 var skipAuthMethods = map[string]bool{
-	"/services.v1.AuthService/SignIn": true,
+	"/dashboard.services.v1.AuthService/SignIn": true,
 }
 
 func AuthInterceptor(jwtService contracts.JwtService) grpc.UnaryServerInterceptor {

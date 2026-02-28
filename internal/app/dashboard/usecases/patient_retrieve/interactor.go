@@ -44,7 +44,6 @@ func New(
 	}
 }
 
-// patientData holds the result of the initial parallel fetch phase
 type patientData struct {
 	patientID   string
 	firstName   string
@@ -61,13 +60,11 @@ func (it *Interactor) Execute(ctx context.Context, req Request) (*Response, erro
 		return nil, errInvalidRequest
 	}
 
-	// Phase 1: fetch patient, contact info, address, diseases in parallel
 	data, err := it.fetchPatientData(ctx, req.PatientID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Phase 2: fetch disease details + sensors in parallel
 	var diseases []domain.Diseas
 	var sensors []domain.Sensor
 
@@ -159,7 +156,9 @@ func (it *Interactor) fetchPatientData(ctx context.Context, patientID string) (*
 }
 
 func (it *Interactor) fetchContactInfo(ctx context.Context, patientID string) (*domain.ContactInfo, error) {
-	reply, err := it.patientContactInfoService.PatientContactInfoGet(ctx, &patient_v1.PatientContactInfoGetRequest{})
+	reply, err := it.patientContactInfoService.PatientContactInfoGet(ctx, &patient_v1.PatientContactInfoGetRequest{
+		PatientId: patientID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +178,9 @@ func (it *Interactor) fetchContactInfo(ctx context.Context, patientID string) (*
 }
 
 func (it *Interactor) fetchAddress(ctx context.Context, patientID string) (*domain.Address, error) {
-	reply, err := it.patientAddressService.PatientAddressGet(ctx, &patient_v1.PatientAddressGetRequest{})
+	reply, err := it.patientAddressService.PatientAddressGet(ctx, &patient_v1.PatientAddressGetRequest{
+		PatientId: patientID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +200,9 @@ func (it *Interactor) fetchAddress(ctx context.Context, patientID string) (*doma
 }
 
 func (it *Interactor) fetchPatientDiseases(ctx context.Context, patientID string) ([]string, error) {
-	reply, err := it.patientDiseasService.PatientDiseasGet(ctx, &patient_v1.PatientDiseasGetRequest{})
+	reply, err := it.patientDiseasService.PatientDiseasGet(ctx, &patient_v1.PatientDiseasGetRequest{
+		PatientId: patientID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -248,7 +251,6 @@ func (it *Interactor) fetchSensors(ctx context.Context, diseasIDs []string) ([]d
 		return nil, nil
 	}
 
-	// Collect sensor IDs from all diseases in parallel
 	var mu sync.Mutex
 	sensorIDSet := make(map[string]struct{})
 
@@ -283,7 +285,6 @@ func (it *Interactor) fetchSensors(ctx context.Context, diseasIDs []string) ([]d
 		return nil, nil
 	}
 
-	// Fetch all sensor details
 	allSensorsReply, err := it.sensorService.SensorGet(ctx, &biometric_v1.SensorGetRequest{})
 	if err != nil {
 		return nil, err
@@ -296,6 +297,7 @@ func (it *Interactor) fetchSensors(ctx context.Context, diseasIDs []string) ([]d
 				SensorID: s.GetSensorId(),
 				Name:     s.GetName(),
 				Code:     s.GetCode(),
+				Symbol:   s.GetSymbol(),
 			})
 		}
 	}
