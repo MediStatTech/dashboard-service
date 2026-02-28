@@ -13,8 +13,14 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
+	pb "github.com/MediStatTech/dashboard-client/pb/go/services/v1"
 	"github.com/MediStatTech/dashboard-service/internal/app"
 	s_options "github.com/MediStatTech/dashboard-service/internal/app/options"
+	grpc_auth "github.com/MediStatTech/dashboard-service/internal/transport/grpc/auth"
+	grpc_diseas "github.com/MediStatTech/dashboard-service/internal/transport/grpc/diseas"
+	"github.com/MediStatTech/dashboard-service/internal/transport/grpc/middleware"
+	grpc_patient "github.com/MediStatTech/dashboard-service/internal/transport/grpc/patient"
+	grpc_staff "github.com/MediStatTech/dashboard-service/internal/transport/grpc/staff"
 	"github.com/MediStatTech/dashboard-service/pkg"
 )
 
@@ -50,6 +56,7 @@ func New(p *pkg.Facade, appInstance *app.Facade) (*Server, error) {
 			Time:                  4 * time.Hour,
 			Timeout:               4 * time.Hour,
 		}),
+		grpc.UnaryInterceptor(middleware.AuthInterceptor(appInstance.JwtService)),
 	)
 
 	opts := &s_options.Options{
@@ -57,11 +64,26 @@ func New(p *pkg.Facade, appInstance *app.Facade) (*Server, error) {
 		PKG: p,
 	}
 
-	// gRPC services
+	// Register gRPC services
+	authHandler := grpc_auth.New(opts)
+	pb.RegisterAuthServiceServer(server, authHandler)
 
+	staffHandler := grpc_staff.New(opts)
+	pb.RegisterStaffServiceServer(server, staffHandler)
+
+	patientHandler := grpc_patient.New(opts)
+	pb.RegisterPatientServiceServer(server, patientHandler)
+
+	diseasHandler := grpc_diseas.New(opts)
+	pb.RegisterDiseasServiceServer(server, diseasHandler)
+
+	// Health checks
 	healthServer := health.NewServer()
 	grpc_health_v1.RegisterHealthServer(server, healthServer)
-	healthServer.SetServingStatus("dashboard.v1.DashboardService", grpc_health_v1.HealthCheckResponse_SERVING)
+	healthServer.SetServingStatus("services.v1.AuthService", grpc_health_v1.HealthCheckResponse_SERVING)
+	healthServer.SetServingStatus("services.v1.StaffService", grpc_health_v1.HealthCheckResponse_SERVING)
+	healthServer.SetServingStatus("services.v1.PatientService", grpc_health_v1.HealthCheckResponse_SERVING)
+	healthServer.SetServingStatus("services.v1.DiseasService", grpc_health_v1.HealthCheckResponse_SERVING)
 	healthServer.SetServingStatus("", grpc_health_v1.HealthCheckResponse_SERVING)
 	reflection.Register(server)
 

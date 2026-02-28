@@ -3,29 +3,24 @@ package config
 import (
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	// Server configuration
-	ServerHost string `env:"SERVER_HOST"`
-	ServerPort string `env:"SERVER_PORT"`
+	ServerHost string
+	ServerPort string
 
 	// TLS configuration
-	TLSCertFilePath string `env:"TLS_CERT_FILE_PATH"`
-	TLSKeyFilePath  string `env:"TLS_KEY_FILE_PATH"`
-
-	// JWT configuration
-	JWTSecretKey string        `env:"JWT_SECRET_KEY"`
-	JWTDuration  time.Duration `env:"JWT_DURATION"`
+	TLSCertFilePath string
+	TLSKeyFilePath  string
 
 	// Environment
-	Environment string `env:"ENVIRONMENT"`
+	Environment string
 
 	// Logging
-	LogLevel string `env:"LOG_LEVEL"`
+	LogLevel string
 }
 
 func NewConfig() (*Config, error) {
@@ -41,8 +36,6 @@ func NewConfig() (*Config, error) {
 	cfg.ServerPort = getEnv("SERVER_PORT", "8080")
 	cfg.TLSCertFilePath = getEnv("TLS_CERT_FILE_PATH", "")
 	cfg.TLSKeyFilePath = getEnv("TLS_KEY_FILE_PATH", "")
-	cfg.JWTSecretKey = getEnv("JWT_SECRET_KEY", "")
-	cfg.JWTDuration = getEnvAsDuration("JWT_DURATION", 24*time.Hour)
 	cfg.Environment = getEnv("ENVIRONMENT", "development")
 	cfg.LogLevel = getEnv("LOG_LEVEL", "info")
 
@@ -54,18 +47,4 @@ func getEnv(key string, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-}
-
-func getEnvAsDuration(key string, defaultValue time.Duration) time.Duration {
-	valueStr := os.Getenv(key)
-	if valueStr == "" {
-		return defaultValue
-	}
-
-	value, err := time.ParseDuration(valueStr)
-	if err != nil {
-		return defaultValue
-	}
-
-	return value
 }

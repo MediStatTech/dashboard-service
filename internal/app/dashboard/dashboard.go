@@ -3,6 +3,7 @@ package dashboard
 import (
 	"fmt"
 
+	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/contracts"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/uc_options"
 	"github.com/MediStatTech/dashboard-service/internal/infra/client"
@@ -10,8 +11,9 @@ import (
 )
 
 type Facade struct {
-	pkg      *pkg.Facade
-	UseCases *usecases.Facade
+	pkg        *pkg.Facade
+	UseCases   *usecases.Facade
+	JwtService contracts.JwtService
 }
 
 func New(pkg *pkg.Facade) (*Facade, error) {
@@ -52,7 +54,8 @@ func New(pkg *pkg.Facade) (*Facade, error) {
 	})
 
 	return &Facade{
-		pkg:      pkg,
-		UseCases: useCasesInstance,
+		pkg:        pkg,
+		UseCases:   useCasesInstance,
+		JwtService: authClient.Jwt,
 	}, nil
 }
