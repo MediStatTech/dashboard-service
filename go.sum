@@ -6,8 +6,8 @@ github.com/MediStatTech/auth-client v0.0.0-20260221115108-0f7236239522 h1:D7iMub
 github.com/MediStatTech/auth-client v0.0.0-20260221115108-0f7236239522/go.mod h1:3wTMATME4ao5lgZjsKMjS+t0UPe1mT8gN7iuMXzZt3c=
 github.com/MediStatTech/biometric-client v0.0.0-20260214133007-411c9c3474ad h1:AIfhtNVUp1xRccTGt9FGwALCVYOdO9CBeD98SibXVMk=
 github.com/MediStatTech/biometric-client v0.0.0-20260214133007-411c9c3474ad/go.mod h1:iP1x47+MW/S8X0IrLBnEV7pMLWT0VT/WSHJMjRbJnyo=
-github.com/MediStatTech/commitplan v1.0.2 h1:+/e5irGJzx2tP3PpropByzHW8p0cI4t7F8UwsnAD5FQ=
-github.com/MediStatTech/commitplan v1.0.2/go.mod h1:7l2tM5g5yYDUoICNKr08ZtQhBGjkeNP5/TQYswhCxY8=
+github.com/MediStatTech/dashboard-client v0.0.0-20260228142002-8b2322e46690 h1:F3r6CGwevLiHYc04oesdvNRVs6AC0ubD4KUKSJx9iBg=
+github.com/MediStatTech/dashboard-client v0.0.0-20260228142002-8b2322e46690/go.mod h1:BmPZQPGmR6ryTeFR6k6xWQ9i2KapdxCntBYfOhmXP3M=
 github.com/MediStatTech/env v1.0.2 h1:XNpjWEsAYOkI/OyDn4lgboVR949eiMJrpzYlSg+WmGY=
 github.com/MediStatTech/env v1.0.2/go.mod h1:2VKvt2uFoOfD2WKPdf/r9DgCO9EI5jkOBdnJAfcprRc=
 github.com/MediStatTech/logger v0.0.0-20260125154403-dc19bcd90420 h1:a6rruaSqFAF9zv0ndKRslOerojrrvn8bz+p6PkU0NUk=

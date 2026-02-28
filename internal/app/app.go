@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard"
+	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/contracts"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases"
 	"github.com/MediStatTech/dashboard-service/pkg"
 )
 
 type Facade struct {
-	Dashboard *usecases.Facade
+	Dashboard  *usecases.Facade
+	JwtService contracts.JwtService
 }
 
 func New(pkg *pkg.Facade) (*Facade, error) {
@@ -19,6 +21,7 @@ func New(pkg *pkg.Facade) (*Facade, error) {
 	}
 
 	return &Facade{
-		Dashboard: dashboardFacade.UseCases,
+		Dashboard:  dashboardFacade.UseCases,
+		JwtService: dashboardFacade.JwtService,
 	}, nil
 }

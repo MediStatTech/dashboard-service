@@ -5,10 +5,11 @@ go 1.25.4
 require (
 	github.com/MediStatTech/auth-client v0.0.0-20260221115108-0f7236239522
 	github.com/MediStatTech/biometric-client v0.0.0-20260214133007-411c9c3474ad
-	github.com/MediStatTech/commitplan v1.0.2
+	github.com/MediStatTech/dashboard-client v0.0.0-20260228142002-8b2322e46690
 	github.com/MediStatTech/logger v0.0.0-20260125154403-dc19bcd90420
 	github.com/MediStatTech/patient-client v0.0.0-20260221111630-60a8d6d324c7
 	github.com/joho/godotenv v1.5.1
+	golang.org/x/sync v0.19.0
 	google.golang.org/grpc v1.79.1
 )
 
@@ -28,7 +29,6 @@ require (
 	github.com/spiffe/go-spiffe/v2 v2.6.0 // indirect
 	golang.org/x/net v0.48.0 // indirect
 	golang.org/x/oauth2 v0.34.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.39.0 // indirect
 	golang.org/x/text v0.32.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251202230838-ff82c1b0f217 // indirect
