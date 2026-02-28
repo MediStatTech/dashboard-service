@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/MediStatTech/dashboard-service/internal"
+	"github.com/MediStatTech/dashboard-service/internal/health"
 	"github.com/MediStatTech/dashboard-service/pkg"
 )
 
