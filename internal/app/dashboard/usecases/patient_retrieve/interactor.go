@@ -5,21 +5,22 @@ import (
 	"sync"
 
 	biometric_v1 "github.com/MediStatTech/biometric-client/pb/go/services/v1"
-	patient_v1 "github.com/MediStatTech/patient-client/pb/go/services/v1"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/contracts"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/domain"
+	patient_v1 "github.com/MediStatTech/patient-client/pb/go/services/v1"
 	"golang.org/x/sync/errgroup"
 )
 
 type Interactor struct {
-	patientService            contracts.PatientService
-	patientContactInfoService contracts.PatientContactInfoService
-	patientAddressService     contracts.PatientAddressService
-	patientDiseasService      contracts.PatientDiseasService
-	diseasService             contracts.DiseasService
-	diseasSensorService       contracts.DiseasSensorService
-	sensorService             contracts.SensorService
-	logger                    contracts.Logger
+	patientService             contracts.PatientService
+	patientContactInfoService  contracts.PatientContactInfoService
+	patientAddressService      contracts.PatientAddressService
+	patientDiseasService       contracts.PatientDiseasService
+	diseasService              contracts.DiseasService
+	diseasSensorService        contracts.DiseasSensorService
+	sensorService              contracts.SensorService
+	sensorPatientMetricService contracts.SensorPatientMetricService
+	logger                     contracts.Logger
 }
 
 func New(
@@ -30,17 +31,19 @@ func New(
 	diseasService contracts.DiseasService,
 	diseasSensorService contracts.DiseasSensorService,
 	sensorService contracts.SensorService,
+	sensorPatientMetricService contracts.SensorPatientMetricService,
 	logger contracts.Logger,
 ) *Interactor {
 	return &Interactor{
-		patientService:            patientService,
-		patientContactInfoService: patientContactInfoService,
-		patientAddressService:     patientAddressService,
-		patientDiseasService:      patientDiseasService,
-		diseasService:             diseasService,
-		diseasSensorService:       diseasSensorService,
-		sensorService:             sensorService,
-		logger:                    logger,
+		patientService:             patientService,
+		patientContactInfoService:  patientContactInfoService,
+		patientAddressService:      patientAddressService,
+		patientDiseasService:       patientDiseasService,
+		diseasService:              diseasService,
+		diseasSensorService:        diseasSensorService,
+		sensorService:              sensorService,
+		sensorPatientMetricService: sensorPatientMetricService,
+		logger:                     logger,
 	}
 }
 
@@ -78,7 +81,7 @@ func (it *Interactor) Execute(ctx context.Context, req Request) (*Response, erro
 
 	eg.Go(func() error {
 		var err error
-		sensors, err = it.fetchSensors(egCtx, data.diseasIDs)
+		sensors, err = it.fetchSensors(egCtx, data.patientID, data.diseasIDs)
 		return err
 	})
 
@@ -246,7 +249,7 @@ func (it *Interactor) fetchDiseaseDetails(ctx context.Context, diseasIDs []strin
 	return diseases, nil
 }
 
-func (it *Interactor) fetchSensors(ctx context.Context, diseasIDs []string) ([]domain.Sensor, error) {
+func (it *Interactor) fetchSensors(ctx context.Context, patientID string, diseasIDs []string) ([]domain.Sensor, error) {
 	if len(diseasIDs) == 0 {
 		return nil, nil
 	}
@@ -293,12 +296,34 @@ func (it *Interactor) fetchSensors(ctx context.Context, diseasIDs []string) ([]d
 	sensors := make([]domain.Sensor, 0)
 	for _, s := range allSensorsReply.GetSensors() {
 		if _, ok := sensorIDSet[s.GetSensorId()]; ok {
-			sensors = append(sensors, domain.Sensor{
+			sensor := domain.Sensor{
 				SensorID: s.GetSensorId(),
 				Name:     s.GetName(),
 				Code:     s.GetCode(),
 				Symbol:   s.GetSymbol(),
+			}
+
+			metricsReply, err := it.sensorPatientMetricService.SensorPatientMetricGet(ctx, &biometric_v1.SensorPatientMetricGetRequest{
+				SensorId:  s.GetSensorId(),
+				PatientId: patientID,
 			})
+			if err != nil {
+				it.logger.Error("failed to get sensor patient metrics", map[string]any{
+					"sensor_id":  s.GetSensorId(),
+					"patient_id": patientID,
+					"error":      err.Error(),
+				})
+			} else {
+				for _, m := range metricsReply.GetSensorPatientMetrics() {
+					sensor.Metrics = append(sensor.Metrics, domain.SensorMetric{
+						Value:     m.GetValue(),
+						Symbol:    m.GetSymbol(),
+						CreatedAt: m.GetCreatedAt().AsTime(),
+					})
+				}
+			}
+
+			sensors = append(sensors, sensor)
 		}
 	}
 

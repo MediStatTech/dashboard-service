@@ -3,6 +3,7 @@ package patient
 import (
 	pb_models "github.com/MediStatTech/dashboard-client/pb/go/models/v1"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/domain"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func patientToPb(p domain.Patient) *pb_models.Patient_Read {
@@ -76,10 +77,20 @@ func diseasToPb(d domain.Diseas) *pb_models.Diseas {
 }
 
 func sensorToPb(s domain.Sensor) *pb_models.Sensor {
+	metrics := make([]*pb_models.Metric, 0, len(s.Metrics))
+	for _, m := range s.Metrics {
+		metrics = append(metrics, &pb_models.Metric{
+			Value:     m.Value,
+			Symbol:    m.Symbol,
+			CreatedAt: timestamppb.New(m.CreatedAt),
+		})
+	}
+
 	return &pb_models.Sensor{
 		SensorId: s.SensorID,
 		Name:     s.Name,
 		Code:     s.Code,
 		Symbol:   s.Symbol,
+		Metrics:  metrics,
 	}
 }

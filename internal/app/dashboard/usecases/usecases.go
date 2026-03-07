@@ -42,6 +42,7 @@ func New(o *uc_options.Options) *Facade {
 			o.DiseasService,
 			o.DiseasSensorService,
 			o.SensorService,
+			o.SensorPatientMetricService,
 			o.Logger,
 		),
 		PatientCreate: patient_create.New(

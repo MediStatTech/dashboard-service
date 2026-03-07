@@ -4,7 +4,7 @@ go 1.25.4
 
 require (
 	github.com/MediStatTech/auth-client v0.0.0-20260221115108-0f7236239522
-	github.com/MediStatTech/biometric-client v0.0.0-20260214133007-411c9c3474ad
+	github.com/MediStatTech/biometric-client v0.0.0-20260307140800-e60831d119d5
 	github.com/MediStatTech/dashboard-client v0.0.0-20260228161354-f96cbfc04b80
 	github.com/MediStatTech/logger v0.0.0-20260125154403-dc19bcd90420
 	github.com/MediStatTech/patient-client v0.0.0-20260221111630-60a8d6d324c7

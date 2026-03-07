@@ -35,7 +35,7 @@ func main() {
 
 	// Start HTTP health server for Kubernetes probes
 	pkgInstance.Logger.Info("Starting health server for Kubernetes probes...", map[string]any{})
-	healthServer := health.NewHealthServer(pkgInstance.Logger, ":8080")
+	healthServer := health.NewHealthServer(pkgInstance.Logger, ":8083")
 	if err := healthServer.Start(); err != nil {
 		pkgInstance.Logger.Fatal("Failed to start health server", map[string]any{
 			"error": err,

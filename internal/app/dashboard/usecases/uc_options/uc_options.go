@@ -17,8 +17,9 @@ type Options struct {
 	PatientAddressService     contracts.PatientAddressService
 
 	// Biometric service contracts
-	DiseasSensorService  contracts.DiseasSensorService
-	DiseasService        contracts.DiseasService
-	SensorService        contracts.SensorService
-	SensorPatientService contracts.SensorPatientService
+	DiseasSensorService        contracts.DiseasSensorService
+	DiseasService              contracts.DiseasService
+	SensorService              contracts.SensorService
+	SensorPatientService       contracts.SensorPatientService
+	SensorPatientMetricService contracts.SensorPatientMetricService
 }

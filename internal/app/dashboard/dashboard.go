@@ -47,10 +47,11 @@ func New(pkg *pkg.Facade) (*Facade, error) {
 		PatientAddressService:     patientClient.PatientAddress,
 
 		// Biometric
-		DiseasSensorService:  biometricClient.DiseasSensor,
-		DiseasService:        biometricClient.Diseas,
-		SensorService:        biometricClient.Sensor,
-		SensorPatientService: biometricClient.SensorPatient,
+		DiseasSensorService:        biometricClient.DiseasSensor,
+		DiseasService:              biometricClient.Diseas,
+		SensorService:              biometricClient.Sensor,
+		SensorPatientService:       biometricClient.SensorPatient,
+		SensorPatientMetricService: biometricClient.SensorPatientMetric,
 	})
 
 	return &Facade{

@@ -27,3 +27,8 @@ type SensorPatientService interface {
 	SensorPatientGet(ctx context.Context, in *biometric_v1.SensorPatientGetRequest, opts ...grpc.CallOption) (*biometric_v1.SensorPatientGetReply, error)
 	SensorPatientRetrieve(ctx context.Context, in *biometric_v1.SensorPatientRetrieveRequest, opts ...grpc.CallOption) (*biometric_v1.SensorPatientRetrieveReply, error)
 }
+
+
+type SensorPatientMetricService interface {
+	SensorPatientMetricGet(ctx context.Context, in *biometric_v1.SensorPatientMetricGetRequest, opts ...grpc.CallOption) (*biometric_v1.SensorPatientMetricGetReply, error)
+}
