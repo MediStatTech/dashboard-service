@@ -52,6 +52,7 @@ func New(pkg *pkg.Facade) (*Facade, error) {
 		SensorService:              biometricClient.Sensor,
 		SensorPatientService:       biometricClient.SensorPatient,
 		SensorPatientMetricService: biometricClient.SensorPatientMetric,
+		PatientStatusService:       biometricClient.PatientStatus,
 	})
 
 	return &Facade{

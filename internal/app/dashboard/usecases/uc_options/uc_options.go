@@ -22,4 +22,5 @@ type Options struct {
 	SensorService              contracts.SensorService
 	SensorPatientService       contracts.SensorPatientService
 	SensorPatientMetricService contracts.SensorPatientMetricService
+	PatientStatusService       contracts.PatientStatusService
 }

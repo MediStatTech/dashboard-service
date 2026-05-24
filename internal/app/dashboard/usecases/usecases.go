@@ -2,8 +2,11 @@ package usecases
 
 import (
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/diseas_get"
+	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/measurement_get"
+	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/measurement_history_get"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_create"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_get"
+	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_panic_trigger"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_retrieve"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/sign_in"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/staff_retrieve"
@@ -11,12 +14,15 @@ import (
 )
 
 type Facade struct {
-	SignIn          *sign_in.Interactor
-	StaffRetrieve   *staff_retrieve.Interactor
-	PatientGet      *patient_get.Interactor
-	PatientRetrieve *patient_retrieve.Interactor
-	PatientCreate   *patient_create.Interactor
-	DiseasGet       *diseas_get.Interactor
+	SignIn                *sign_in.Interactor
+	StaffRetrieve         *staff_retrieve.Interactor
+	PatientGet            *patient_get.Interactor
+	PatientRetrieve       *patient_retrieve.Interactor
+	PatientCreate         *patient_create.Interactor
+	DiseasGet             *diseas_get.Interactor
+	MeasurementGet        *measurement_get.Interactor
+	MeasurementHistoryGet *measurement_history_get.Interactor
+	PatientPanicTrigger   *patient_panic_trigger.Interactor
 }
 
 func New(o *uc_options.Options) *Facade {
@@ -32,6 +38,7 @@ func New(o *uc_options.Options) *Facade {
 		),
 		PatientGet: patient_get.New(
 			o.PatientService,
+			o.PatientStatusService,
 			o.Logger,
 		),
 		PatientRetrieve: patient_retrieve.New(
@@ -43,6 +50,7 @@ func New(o *uc_options.Options) *Facade {
 			o.DiseasSensorService,
 			o.SensorService,
 			o.SensorPatientMetricService,
+			o.PatientStatusService,
 			o.Logger,
 		),
 		PatientCreate: patient_create.New(
@@ -56,6 +64,18 @@ func New(o *uc_options.Options) *Facade {
 		),
 		DiseasGet: diseas_get.New(
 			o.DiseasService,
+			o.Logger,
+		),
+		MeasurementGet: measurement_get.New(
+			o.SensorPatientMetricService,
+			o.Logger,
+		),
+		MeasurementHistoryGet: measurement_history_get.New(
+			o.SensorPatientMetricService,
+			o.Logger,
+		),
+		PatientPanicTrigger: patient_panic_trigger.New(
+			o.PatientStatusService,
 			o.Logger,
 		),
 	}

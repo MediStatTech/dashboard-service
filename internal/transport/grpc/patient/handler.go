@@ -4,6 +4,7 @@ import (
 	s_options "github.com/MediStatTech/dashboard-service/internal/app/options"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_create"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_get"
+	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_panic_trigger"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_retrieve"
 	"github.com/MediStatTech/dashboard-service/pkg"
 
@@ -18,7 +19,8 @@ type Handler struct {
 }
 
 type Commands struct {
-	PatientCreate *patient_create.Interactor
+	PatientCreate       *patient_create.Interactor
+	PatientPanicTrigger *patient_panic_trigger.Interactor
 }
 
 type Queries struct {
@@ -30,7 +32,8 @@ func New(opts *s_options.Options) *Handler {
 	return &Handler{
 		pkg: opts.PKG,
 		commands: &Commands{
-			PatientCreate: opts.App.Dashboard.PatientCreate,
+			PatientCreate:       opts.App.Dashboard.PatientCreate,
+			PatientPanicTrigger: opts.App.Dashboard.PatientPanicTrigger,
 		},
 		queries: &Queries{
 			PatientGet:      opts.App.Dashboard.PatientGet,

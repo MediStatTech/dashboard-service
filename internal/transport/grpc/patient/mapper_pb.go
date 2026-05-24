@@ -77,20 +77,46 @@ func diseasToPb(d domain.Diseas) *pb_models.Diseas {
 }
 
 func sensorToPb(s domain.Sensor) *pb_models.Sensor {
-	metrics := make([]*pb_models.Metric, 0, len(s.Metrics))
-	for _, m := range s.Metrics {
-		metrics = append(metrics, &pb_models.Metric{
-			Value:     m.Value,
-			Symbol:    m.Symbol,
-			CreatedAt: timestamppb.New(m.CreatedAt),
+	metricTypes := make([]*pb_models.MetricType, 0, len(s.MetricTypes))
+	for _, mt := range s.MetricTypes {
+		metricTypes = append(metricTypes, &pb_models.MetricType{
+			MetricTypeId: mt.MetricTypeID,
+			SensorId:     mt.SensorID,
+			Code:         mt.Code,
+			Name:         mt.Name,
+			Symbol:       mt.Symbol,
+			MinValue:     mt.MinValue,
+			MaxValue:     mt.MaxValue,
+		})
+	}
+
+	measurements := make([]*pb_models.Measurement, 0, len(s.Measurements))
+	for _, m := range s.Measurements {
+		components := make([]*pb_models.Component, 0, len(m.Components))
+		for _, c := range m.Components {
+			components = append(components, &pb_models.Component{
+				MetricTypeId: c.MetricTypeID,
+				Code:         c.Code,
+				Name:         c.Name,
+				Value:        c.Value,
+				Symbol:       c.Symbol,
+			})
+		}
+		measurements = append(measurements, &pb_models.Measurement{
+			SensorId:   m.SensorID,
+			PatientId:  m.PatientID,
+			CreatedAt:  timestamppb.New(m.CreatedAt),
+			Components: components,
 		})
 	}
 
 	return &pb_models.Sensor{
-		SensorId: s.SensorID,
-		Name:     s.Name,
-		Code:     s.Code,
-		Symbol:   s.Symbol,
-		Metrics:  metrics,
+		SensorId:     s.SensorID,
+		Name:         s.Name,
+		Code:         s.Code,
+		Symbol:       s.Symbol,
+		Status:       s.Status,
+		MetricTypes:  metricTypes,
+		Measurements: measurements,
 	}
 }

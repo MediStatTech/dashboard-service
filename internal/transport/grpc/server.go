@@ -18,6 +18,7 @@ import (
 	s_options "github.com/MediStatTech/dashboard-service/internal/app/options"
 	grpc_auth "github.com/MediStatTech/dashboard-service/internal/transport/grpc/auth"
 	grpc_diseas "github.com/MediStatTech/dashboard-service/internal/transport/grpc/diseas"
+	grpc_measurement "github.com/MediStatTech/dashboard-service/internal/transport/grpc/measurement"
 	"github.com/MediStatTech/dashboard-service/internal/transport/grpc/middleware"
 	grpc_patient "github.com/MediStatTech/dashboard-service/internal/transport/grpc/patient"
 	grpc_staff "github.com/MediStatTech/dashboard-service/internal/transport/grpc/staff"
@@ -76,6 +77,9 @@ func New(p *pkg.Facade, appInstance *app.Facade) (*Server, error) {
 
 	diseasHandler := grpc_diseas.New(opts)
 	pb.RegisterDiseasServiceServer(server, diseasHandler)
+
+	measurementHandler := grpc_measurement.New(opts)
+	pb.RegisterMeasurementServiceServer(server, measurementHandler)
 
 	// Health checks
 	healthServer := health.NewServer()

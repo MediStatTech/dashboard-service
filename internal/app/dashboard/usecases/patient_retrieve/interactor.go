@@ -20,6 +20,7 @@ type Interactor struct {
 	diseasSensorService        contracts.DiseasSensorService
 	sensorService              contracts.SensorService
 	sensorPatientMetricService contracts.SensorPatientMetricService
+	patientStatusService       contracts.PatientStatusService
 	logger                     contracts.Logger
 }
 
@@ -32,6 +33,7 @@ func New(
 	diseasSensorService contracts.DiseasSensorService,
 	sensorService contracts.SensorService,
 	sensorPatientMetricService contracts.SensorPatientMetricService,
+	patientStatusService contracts.PatientStatusService,
 	logger contracts.Logger,
 ) *Interactor {
 	return &Interactor{
@@ -43,6 +45,7 @@ func New(
 		diseasSensorService:        diseasSensorService,
 		sensorService:              sensorService,
 		sensorPatientMetricService: sensorPatientMetricService,
+		patientStatusService:       patientStatusService,
 		logger:                     logger,
 	}
 }
@@ -70,6 +73,7 @@ func (it *Interactor) Execute(ctx context.Context, req Request) (*Response, erro
 
 	var diseases []domain.Diseas
 	var sensors []domain.Sensor
+	status := "ok"
 
 	eg, egCtx := errgroup.WithContext(ctx)
 
@@ -85,6 +89,26 @@ func (it *Interactor) Execute(ctx context.Context, req Request) (*Response, erro
 		return err
 	})
 
+	eg.Go(func() error {
+		reply, err := it.patientStatusService.PatientStatusGetBatch(egCtx, &biometric_v1.PatientStatusGetBatchRequest{
+			PatientIds: []string{data.patientID},
+		})
+		if err != nil {
+			it.logger.Error("failed to fetch patient status", map[string]any{
+				"patient_id": data.patientID,
+				"error":      err.Error(),
+			})
+			return nil
+		}
+		for _, s := range reply.GetPatientStatuses() {
+			if s.GetPatientId() == data.patientID {
+				status = s.GetStatus()
+				break
+			}
+		}
+		return nil
+	})
+
 	if err := eg.Wait(); err != nil {
 		return nil, err
 	}
@@ -96,7 +120,7 @@ func (it *Interactor) Execute(ctx context.Context, req Request) (*Response, erro
 			LastName:    data.lastName,
 			Gender:      data.gender,
 			Dob:         data.dob,
-			Status:      "active",
+			Status:      status,
 			ContactInfo: data.contactInfo,
 			Address:     data.address,
 			Diseases:    diseases,
@@ -296,11 +320,25 @@ func (it *Interactor) fetchSensors(ctx context.Context, patientID string, diseas
 	sensors := make([]domain.Sensor, 0)
 	for _, s := range allSensorsReply.GetSensors() {
 		if _, ok := sensorIDSet[s.GetSensorId()]; ok {
+			metricTypes := make([]domain.MetricType, 0, len(s.GetMetricTypes()))
+			for _, mt := range s.GetMetricTypes() {
+				metricTypes = append(metricTypes, domain.MetricType{
+					MetricTypeID: mt.GetMetricTypeId(),
+					SensorID:     mt.GetSensorId(),
+					Code:         mt.GetCode(),
+					Name:         mt.GetName(),
+					Symbol:       mt.GetSymbol(),
+					MinValue:     mt.GetMinValue(),
+					MaxValue:     mt.GetMaxValue(),
+				})
+			}
+
 			sensor := domain.Sensor{
-				SensorID: s.GetSensorId(),
-				Name:     s.GetName(),
-				Code:     s.GetCode(),
-				Symbol:   s.GetSymbol(),
+				SensorID:    s.GetSensorId(),
+				Name:        s.GetName(),
+				Code:        s.GetCode(),
+				Symbol:      s.GetSymbol(),
+				MetricTypes: metricTypes,
 			}
 
 			metricsReply, err := it.sensorPatientMetricService.SensorPatientMetricGet(ctx, &biometric_v1.SensorPatientMetricGetRequest{
@@ -308,19 +346,32 @@ func (it *Interactor) fetchSensors(ctx context.Context, patientID string, diseas
 				PatientId: patientID,
 			})
 			if err != nil {
-				it.logger.Error("failed to get sensor patient metrics", map[string]any{
+				it.logger.Error("failed to get sensor measurements", map[string]any{
 					"sensor_id":  s.GetSensorId(),
 					"patient_id": patientID,
 					"error":      err.Error(),
 				})
 			} else {
-				for _, m := range metricsReply.GetSensorPatientMetrics() {
-					sensor.Metrics = append(sensor.Metrics, domain.SensorMetric{
-						Value:     m.GetValue(),
-						Symbol:    m.GetSymbol(),
-						CreatedAt: m.GetCreatedAt().AsTime(),
+				measurements := make([]domain.Measurement, 0, len(metricsReply.GetMeasurements()))
+				for _, m := range metricsReply.GetMeasurements() {
+					components := make([]domain.MeasurementComponent, 0, len(m.GetComponents()))
+					for _, c := range m.GetComponents() {
+						components = append(components, domain.MeasurementComponent{
+							MetricTypeID: c.GetMetricTypeId(),
+							Code:         c.GetCode(),
+							Name:         c.GetName(),
+							Value:        c.GetValue(),
+							Symbol:       c.GetSymbol(),
+						})
+					}
+					measurements = append(measurements, domain.Measurement{
+						SensorID:   m.GetSensorId(),
+						PatientID:  m.GetPatientId(),
+						CreatedAt:  m.GetCreatedAt().AsTime(),
+						Components: components,
 					})
 				}
+				sensor.Measurements = measurements
 			}
 
 			sensors = append(sensors, sensor)

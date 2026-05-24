@@ -7,8 +7,10 @@ import (
 	pb "github.com/MediStatTech/dashboard-client/pb/go/services/v1"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_create"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_get"
+	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_panic_trigger"
 	"github.com/MediStatTech/dashboard-service/internal/app/dashboard/usecases/patient_retrieve"
 	"github.com/MediStatTech/dashboard-service/pkg/auth"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (h *Handler) PatientGet(
@@ -105,5 +107,26 @@ func (h *Handler) PatientCreate(
 
 	return &pb.PatientCreateReply{
 		Patient: patientToPb(retrieveResp.Patient),
+	}, nil
+}
+
+func (h *Handler) PatientPanicTrigger(
+	ctx context.Context,
+	req *pb.PatientPanicTriggerRequest,
+) (*pb.PatientPanicTriggerReply, error) {
+	if req == nil {
+		return nil, errRequestNil
+	}
+
+	resp, err := h.commands.PatientPanicTrigger.Execute(ctx, patient_panic_trigger.Request{
+		PatientID:       req.GetPatientId(),
+		DurationSeconds: req.GetDurationSeconds(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.PatientPanicTriggerReply{
+		PanicUntil: timestamppb.New(resp.PanicUntil),
 	}, nil
 }
